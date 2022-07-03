@@ -12,9 +12,6 @@ if(isset($_GET['logout']))
             $logout_message = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> has left the chat session.</span> Student's final score is 0 and average is 0.<br></div>";
             file_put_contents("log.html", $logout_message, FILE_APPEND | LOCK_EX);
             session_destroy();
-            ini_set('session.gc_max_lifetime', 0);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 1);
             header("Location: index.php"); 
         }
         else
@@ -23,9 +20,6 @@ ini_set('session.gc_divisor', 1);
             $logout_message = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> has left the chat session.</span> Student's final score is $sum and average is $avg.<br></div>";
             file_put_contents("log.html", $logout_message, FILE_APPEND | LOCK_EX);
             session_destroy();
-            ini_set('session.gc_max_lifetime', 0);
-ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 1);
             header("Location: index.php"); 
         }
     }
@@ -190,7 +184,8 @@ function loginForm()
                     window.location = "index.php?logout=true";
                     }
                 });
-                $("#timer1").click(function () 
+            });
+            $("#timer1").click(function () 
                 {
                     var minutesLabel = document.getElementById("minutes");
                     var secondsLabel = document.getElementById("seconds");
@@ -207,22 +202,21 @@ function loginForm()
                         var timer2 = document.getElementById("timer2");
                         timer2.innerHTML=ftxt;
                         window.stored_value = ftxt;
-                        setvaluest();
+                        //setvaluest();
                     }
-                        function pad(val) 
+                    function pad(val) 
+                    {
+                        var valString = val + "";
+                        if (valString.length < 2) 
                         {
-                            var valString = val + "";
-                            if (valString.length < 2) 
-                            {
-                                return "0" + valString;
-                            } 
-                            else 
-                            {
-                                return valString;
-                            }
-                        }    
-                });
-            });
+                            return "0" + valString;
+                        } 
+                        else 
+                        {
+                            return valString;
+                        }
+                    }    
+                    });
         </script>
     </body>
 </html>
