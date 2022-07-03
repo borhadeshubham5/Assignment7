@@ -11,8 +11,6 @@ if(isset($_SESSION['name']))
         $text = $_POST['text'];
         if (is_numeric($text))
         {
-            //$_SESSION['sum']=stripslashes(htmlspecialchars($sum));
-            //$_SESSION['ques']=stripslashes(htmlspecialchars($ques));
             $ans1 = (int)$text;
             $ans2 =(int)$_SESSION['sum'];
             $ques1=(int)$_SESSION['ques'];
