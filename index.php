@@ -11,6 +11,9 @@ if(isset($_GET['logout']))
         {
             $logout_message = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> has left the chat session.</span> Student's final score is 0 and average is 0.<br></div>";
             file_put_contents("log.html", $logout_message, FILE_APPEND | LOCK_EX);
+            $myfile = fopen("test.txt", "w") or die("Unable to open file!");
+            fwrite($myfile, "00:00");
+            fclose($myfile);
             session_destroy();
             header("Location: index.php"); 
         }
@@ -19,6 +22,9 @@ if(isset($_GET['logout']))
             $avg=$sum/$ques;
             $logout_message = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> has left the chat session.</span> Student's final score is $sum and average is $avg.<br></div>";
             file_put_contents("log.html", $logout_message, FILE_APPEND | LOCK_EX);
+            $myfile = fopen("test.txt", "w") or die("Unable to open file!");
+            fwrite($myfile, "00:00");
+            fclose($myfile);
             session_destroy();
             header("Location: index.php"); 
         }
@@ -112,7 +118,10 @@ function loginForm()
     </script>
     <center>
         <?php
-            echo "<p id='timer2' name='htimer'></p>";
+            echo "<p id='timer2' name='htimer' hidden></p>";
+        ?>
+         <?php
+            echo "<p id='timer5' name='htimer'></p>";
         ?>
         <p id='timer3' name='htimers'></p>
         <div id="wrapper">
@@ -123,7 +132,25 @@ function loginForm()
                 {
                     echo "<p class='welcome'>Welcome, <b> $sname</b></p>";
                     echo "<p class='logout'><a id='exit' href='#'>Exit Chat</a> &nbsp; 
-                    <a id='timer1' href='#'>Start Timer</a></p>";
+                    <a id='timer1' href='#'>Start Timer</a> &nbsp;
+                    <select name='minutes1' id='minutes1'>
+                    <option value='minutes'>Minutes</option>
+                    <option value='00'>00</option>
+                    <option value='01'>01</option>
+                    <option value='02'>02</option>
+                    <option value='03'>03</option>
+                    <option value='04'>04</option>
+                    <option value='05'>05</option>
+                    </select><select name='seconds1' id='seconds1'>
+                    <option value='Seconds'>Seconds</option>
+                    <option value='00'>00</option>
+                    <option value='10'>10</option>
+                    <option value='20'>20</option>
+                    <option value='30'>30</option>
+                    <option value='40'>40</option>
+                    <option value='50'>50</option>
+                    <option value='59'>59</option>
+                    </select></p>";
                     //echo "<p id='timer2'></p>";
                 }
                 else
@@ -148,11 +175,16 @@ function loginForm()
                 <input name="submitmsg" type="submit" id="submitmsg" value="Send" />
             </form>
             </div>
-        </div></center>
+        </div>
+    </center>
+    <br>
+    <div id="setv" hidden> </div>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script type="text/javascript">
             // jQuery Document
             $(document).ready(function () {
+                loadDoc();
+                setInterval( loadDoc, 1000);
                 $("#submitmsg").click(function () {
                     var clientmsg = $("#usermsg").val();
                     $.post("post.php", { text: clientmsg});
@@ -177,7 +209,16 @@ function loginForm()
                     });
                 }
                 setInterval (loadLog, 2500);
- 
+            function loadDoc() 
+            {
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function() 
+                {
+                    document.getElementById("timer5").innerHTML = this.responseText;
+                }
+                xhttp.open("GET", "test.txt", true);
+                xhttp.send();
+            }
                 $("#exit").click(function () {
                     var exit = confirm("Are you sure you want to end the session?");
                     if (exit == true) {
@@ -190,6 +231,13 @@ function loginForm()
                     var minutesLabel = document.getElementById("minutes");
                     var secondsLabel = document.getElementById("seconds");
                     var timer1 = document.getElementById("timer1");
+                    var get = $("#minutes1").val();
+                    var setv = document.getElementById("setv");
+                    setv.innerHTML=get;
+                    var x = document.getElementById('minutes1');
+                    x.style.display = 'none';
+                    var x = document.getElementById('seconds1');
+                    x.style.display = 'none';
                     var totalSeconds = 0;
                     setInterval(setTime, 1000);
                     function setTime() 
@@ -202,6 +250,35 @@ function loginForm()
                         var timer2 = document.getElementById("timer2");
                         timer2.innerHTML=ftxt;
                         window.stored_value = ftxt;
+                        //var get1 = $("#setv").val();
+                        var get12 = $("#minutes1").val();
+                        var get13 = $("#seconds1").val();
+                        var mymins=ftxt.substring(0,2);
+                        var mysecs=ftxt.substring(3,5);
+                        if(get12==mymins && get13==mysecs)
+                        {
+                            var setv = document.getElementById("setv");
+                            setv.innerHTML="in if";
+                            var x1 = document.getElementById('timer5');
+                            x1.style.display = 'none';
+                            var x2 = document.getElementById('submitmsg');
+                            x2.style.display = 'none';
+                            var x3 = document.getElementById('usermsg');
+                            var msg="Your session has ended!";
+                            x3.style.display = 'none';
+                            alert(msg);
+                        }
+                        else
+                        {
+                            var setv = document.getElementById("setv");
+                            setv.innerHTML="in else";
+                            $.ajax({
+                            type: 'POST',
+                            url: 'timers.php',
+                            data: {'variable': ftxt},
+                            });
+                        }
+                        
                         //setvaluest();
                     }
                     function pad(val) 
